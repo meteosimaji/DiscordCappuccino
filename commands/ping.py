@@ -17,9 +17,15 @@ class Ping(commands.Cog):
         description="Check the bot's responsiveness with style and speed!",
     )
     async def ping(self, ctx: commands.Context) -> None:
-        start = time.perf_counter()
         try:
-            api_latency = (time.perf_counter() - start) * 1000
+            if ctx.interaction:
+                start = time.perf_counter()
+                await ctx.interaction.response.defer()
+                api_latency = (time.perf_counter() - start) * 1000
+            else:
+                start = time.perf_counter()
+                await ctx.typing()
+                api_latency = (time.perf_counter() - start) * 1000
             ws_latency = self.bot.latency * 1000
 
             embed = discord.Embed(
@@ -36,7 +42,7 @@ class Ping(commands.Cog):
             embed.set_footer(text="Brewed with love \u2615\ufe0f\u2728")
 
             if ctx.interaction:
-                await ctx.interaction.response.send_message(embed=embed)
+                await ctx.interaction.followup.send(embed=embed)
             else:
                 await ctx.send(embed=embed)
         except Exception:
@@ -48,7 +54,7 @@ class Ping(commands.Cog):
             )
             try:
                 if ctx.interaction:
-                    await ctx.interaction.response.send_message(embed=error_embed, ephemeral=True)
+                    await ctx.interaction.followup.send(embed=error_embed, ephemeral=True)
                 else:
                     await ctx.send(embed=error_embed)
             except Exception:
