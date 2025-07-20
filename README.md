@@ -9,7 +9,7 @@ DiscordCappuccino/
 ├─ bot.py
 ├─ commands/
 │  ├─ __init__.py
-│  └─ ping.py
+│  └─ ping.pyなど
 ├─ .env.example
 └─ requirements.txt
 ```
@@ -19,6 +19,7 @@ DiscordCappuccino/
 ```
 DISCORD_BOT_TOKEN=YOUR_TOKEN_HERE
 BOT_PREFIX=c!
+...追加予定
 ```
 
 `.env.example` を `.env` にコピーしてトークンなどを編集してください。
