@@ -1,48 +1,38 @@
 # DiscordCappuccino
 
-簡易な Discord Bot のサンプルです。`commands/` 以下の拡張を読み込み、スラッシュコマンドを中心に動作します。VOICEVOX を利用した読み上げ機能と、YouTube などの音源を再生する簡易音楽プレイヤーを搭載しています。
+This is a lightweight Discord bot example.  Extensions under `commands/` are loaded dynamically and most functionality is provided via slash commands.  It includes a simple music player and several utility commands.
 
-## フォルダ構成例
-
-```
+## Directory layout
+```text
 DiscordCappuccino/
 ├─ bot.py
 ├─ commands/
 │  ├─ __init__.py
-│  └─ ping.pyなど
+│  └─ *.py
 ├─ .env.example
 └─ requirements.txt
 ```
 
-## `.env.example` の記述例
-
-```
+## `.env.example`
+```text
 DISCORD_BOT_TOKEN=YOUR_TOKEN_HERE
 BOT_PREFIX=c!
 SUPPORT_SERVER_URL=https://example.com/support
 BOT_INVITE_URL=https://example.com/invite
-VOICEVOX_URL=http://localhost:50021
-...追加予定
 ```
+Copy this file to `.env` and fill in the actual values.
 
-ボットのタイムゾーンは起動後に `/setup` コマンドで指定します。
+## Running
+1. Prepare Python 3.10 or newer.
+2. Create and activate a virtual environment.
+3. Install dependencies with `pip install -r requirements.txt`.
+4. Copy `.env.example` to `.env` and set `DISCORD_BOT_TOKEN`.
+5. Run the bot with `python bot.py`.
 
-`.env.example` を `.env` にコピーしてトークンや各種 URL を編集してください。
+## Adding commands
+Create `commands/xxx.py` and define a Cog class with `async def setup(bot)` to register it.
 
-## 起動手順
-
-1. Python 3.10 以降を用意します。
-2. 仮想環境を作成してアクティベートします。
-3. `pip install -r requirements.txt` で依存をインストールします。
-4. `.env.example` を `.env` にコピーし、`DISCORD_BOT_TOKEN` を設定します。
-5. VOICEVOX エンジンを起動し、`VOICEVOX_URL` を設定します。
-6. `python bot.py` を実行して起動します。
-
-## コマンド追加ガイド
-
-新しいコマンドは `commands/` ディレクトリに `xxx.py` を作成し、`Cog` クラスと `async def setup(bot)` を定義して追加します。
-
-```
+```python
 from discord.ext import commands
 
 class Example(commands.Cog):
@@ -52,12 +42,9 @@ async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Example(bot))
 ```
 
-## 主な機能
-
-- VOICEVOX によるテキスト読み上げ (`/join`, `/setvoice`, `/disconnect`, `/skip`)
-- YouTube 等の音源再生 (`/play`, `/queue`, `/remove`, `/keep`, `/seek`, `/rewind`, `/forward`, `/stop`)
+## Features
+- Music playback from YouTube and other sources (`/play`, `/queue`, `/remove`, `/keep`, `/seek`, `/rewind`, `/forward`, `/stop`)
+- Utility commands such as `/ping`, `/uptime`, `/dice`, `/qr`, `/barcode`, `/user`, `/server`, `/purge`
 
 ## FAQ
-
-将来的に prefix を使用しない運用も可能なように、スラッシュコマンドを主体としています。`BOT_PREFIX` を空にするとプレフィックスコマンドを無効化できます。
-プレフィックスコマンドが反応しない場合は Developer Portal で Message Content Intent を有効化してください。
+Prefix commands can be disabled by setting `BOT_PREFIX` to an empty string.  If prefix commands do not work, enable the Message Content Intent in the Developer Portal.
