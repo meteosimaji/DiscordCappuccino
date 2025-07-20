@@ -1,6 +1,7 @@
 import logging
 import time
 
+import discord
 from discord.ext import commands
 
 log = logging.getLogger(__name__)
@@ -11,34 +12,47 @@ class Ping(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @commands.hybrid_command(name="ping", description="Show bot latency.")
+    @commands.hybrid_command(
+        name="ping",
+        description="Check the bot's responsiveness with style and speed!",
+    )
     async def ping(self, ctx: commands.Context) -> None:
         start = time.perf_counter()
         try:
+            api_latency = (time.perf_counter() - start) * 1000
+            ws_latency = self.bot.latency * 1000
+
+            embed = discord.Embed(
+                title="\U0001F3D3 Cappuccino Ping",
+                description="Here's how fast I can respond!",
+                color=0xFFC0CB,
+            )
+            embed.add_field(
+                name="\U0001F4BB API Latency", value=f"{api_latency:.0f} ms", inline=True
+            )
+            embed.add_field(
+                name="\U0001F4E1 WebSocket", value=f"{ws_latency:.0f} ms", inline=True
+            )
+            embed.set_footer(text="Brewed with love \u2615\ufe0f\u2728")
+
             if ctx.interaction:
-                await ctx.interaction.response.defer()
-                api_latency = (time.perf_counter() - start) * 1000
-                ws_latency = self.bot.latency * 1000
-                await ctx.interaction.followup.send(
-                    f"Pong!\nAPI: {api_latency:.0f} ms\nWebSocket: {ws_latency:.0f} ms"
-                )
+                await ctx.interaction.response.send_message(embed=embed)
             else:
-                message = await ctx.reply("Pong!")
-                api_latency = (time.perf_counter() - start) * 1000
-                ws_latency = self.bot.latency * 1000
-                await message.edit(
-                    content=f"Pong!\nAPI: {api_latency:.0f} ms\nWebSocket: {ws_latency:.0f} ms"
-                )
+                await ctx.send(embed=embed)
         except Exception:
             log.exception("Failed to execute ping command")
+            error_embed = discord.Embed(
+                title="\u26A0\ufe0f Ping Failed",
+                description="An error occurred while measuring latency.",
+                color=0xFF0000,
+            )
             try:
                 if ctx.interaction:
-                    await ctx.interaction.followup.send("エラーが発生しました。", ephemeral=True)
+                    await ctx.interaction.response.send_message(embed=error_embed, ephemeral=True)
                 else:
-                    await ctx.reply("エラーが発生しました。")
+                    await ctx.send(embed=error_embed)
             except Exception:
                 pass
-
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Ping(bot))
