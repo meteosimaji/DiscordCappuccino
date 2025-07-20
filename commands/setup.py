@@ -1,38 +1,13 @@
 import logging
 import re
-from datetime import timedelta, timezone as fixed_tz
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from datetime import timedelta, timezone as dt_timezone
 
 import discord
 from discord.ext import commands
 
 log = logging.getLogger(__name__)
 
-# \u4e3b\u8981\u30bf\u30a4\u30e0\u30be\u30fc\u30f3 (DST\u81ea\u52d5\u5bfe\u5fdc\u3057\u305f\u3044\u5730\u57df + \u3088\u304f\u4f7f\u3046\u3082\u306e)
-PRIMARY_TZS = {
-    "UTC",
-    "Europe/London",
-    "Europe/Paris",
-    "Europe/Berlin",
-    "Europe/Moscow",
-    "Africa/Cairo",
-    "Africa/Johannesburg",
-    "Asia/Tokyo",
-    "Asia/Seoul",
-    "Asia/Shanghai",
-    "Asia/Hong_Kong",
-    "Asia/Singapore",
-    "Asia/Kolkata",
-    "Asia/Bangkok",
-    "Australia/Sydney",
-    "Pacific/Auckland",
-    "America/New_York",
-    "America/Chicago",
-    "America/Denver",
-    "America/Los_Angeles",
-    "America/Mexico_City",
-    "America/Sao_Paulo",
-}
+TIMEZONE_RE = re.compile(r"^([+-]?)(\d{1,2})$")
 
 # \u6570\u5024\u30aa\u30d5\u30bb\u30c3\u30c8\u8a31\u53ef\u7bc4\u56f2 (-12..+12) 25\u7a2e\u985e (UTC\u542b\u3080)
 MIN_OFFSET = -12
@@ -130,14 +105,26 @@ class Setup(commands.Cog):
             )
             return
 
-        try:
-            label, tzinfo = parse_timezone_input(timezone, summertime)
-        except ValueError as e:
-            await ctx.send(f"\u274c {e}")
-            return
+        tz_param = timezone.strip().upper()
+        if tz_param == "UTC":
+            offset = 0
+        else:
+            m = TIMEZONE_RE.fullmatch(tz_param)
+            if not m:
+                await ctx.send("Invalid timezone. Use like +9 or -5 or UTC.")
+                return
+            sign = -1 if m.group(1) == "-" else 1
+            offset = sign * int(m.group(2))
 
-        self.bot.timezone = tzinfo
-        await ctx.send(f"\u2705 Timezone set to **{label}**")
+        if summertime:
+            try:
+                offset += int(summertime)
+            except ValueError:
+                await ctx.send("Invalid summertime offset.")
+                return
+
+        self.bot.timezone = dt_timezone(timedelta(hours=offset))
+        await ctx.send(f"Timezone set to UTC{offset:+d}")
 
 
 async def setup(bot: commands.Bot) -> None:
