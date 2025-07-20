@@ -35,8 +35,10 @@ class Uptime(commands.Cog):
     @commands.hybrid_command(name="uptime", description="Show how long the bot has been running")
     async def uptime(self, ctx: commands.Context) -> None:
         try:
-            launch_time: datetime = getattr(self.bot, "launch_time", datetime.utcnow().replace(tzinfo=timezone.utc))
-            now = datetime.utcnow().replace(tzinfo=timezone.utc)
+            launch_time: datetime = getattr(self.bot, "launch_time", datetime.now(timezone.utc))
+            if launch_time.tzinfo is None:
+                launch_time = launch_time.replace(tzinfo=timezone.utc)
+            now = datetime.now(timezone.utc)
             delta = now - launch_time
             total_seconds = int(delta.total_seconds())
 
@@ -57,14 +59,12 @@ class Uptime(commands.Cog):
                 timestamp=now
             )
 
-            # Uptime (メイン)
             embed.add_field(
                 name="🟢 Uptime",
                 value=f"{human}\n`{days}d {hours}h {minutes}m {seconds}s`",
                 inline=True
             )
 
-            # 起動時刻 (絶対 + 相対)
             ts = int(launch_time.timestamp())
             embed.add_field(
                 name="🗓 Started",
@@ -72,7 +72,6 @@ class Uptime(commands.Cog):
                 inline=True
             )
 
-            # 1日内の経過率 (進捗バー)
             embed.add_field(
                 name="🌅 Day Progress",
                 value=f"`{bar}` {pct:4.1f}%",
