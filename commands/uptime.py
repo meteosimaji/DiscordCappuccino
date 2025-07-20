@@ -35,8 +35,10 @@ class Uptime(commands.Cog):
     @commands.hybrid_command(name="uptime", description="Show how long the bot has been running")
     async def uptime(self, ctx: commands.Context) -> None:
         try:
-            launch_time: datetime = getattr(self.bot, "launch_time", datetime.utcnow().replace(tzinfo=timezone.utc))
-            now = datetime.utcnow().replace(tzinfo=timezone.utc)
+            launch_time: datetime = getattr(self.bot, "launch_time", datetime.now(timezone.utc))
+            if launch_time.tzinfo is None:
+                launch_time = launch_time.replace(tzinfo=timezone.utc)
+            now = datetime.now(timezone.utc)
             delta = now - launch_time
             total_seconds = int(delta.total_seconds())
 
