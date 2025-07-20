@@ -16,8 +16,8 @@ class Dice(commands.Cog):
             return
         count = int(m.group(1)) if m.group(1) else 1
         sides = int(m.group(2))
-        if not (1 <= count <= 10):
-            await ctx.send("Dice count must be 1-10")
+        if not (1 <= count <= 100):
+            await ctx.send("Dice count must be 1-100")
             return
         rolls = [random.randint(1, sides) for _ in range(count)]
         total = sum(rolls)
