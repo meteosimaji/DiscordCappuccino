@@ -11,28 +11,33 @@ class Ping(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @commands.hybrid_command(description="Show bot latency.")
+    @commands.hybrid_command(name="ping", description="Show bot latency.")
     async def ping(self, ctx: commands.Context) -> None:
-        start = time.monotonic()
+        start = time.perf_counter()
         try:
             if ctx.interaction:
                 await ctx.interaction.response.defer()
-                api_latency = (time.monotonic() - start) * 1000
-                await ctx.followup.send(
-                    f"Pong! API latency: {api_latency:.0f} ms\nWebSocket latency: {self.bot.latency * 1000:.0f} ms"
+                api_latency = (time.perf_counter() - start) * 1000
+                ws_latency = self.bot.latency * 1000
+                await ctx.interaction.followup.send(
+                    f"Pong!\nAPI: {api_latency:.0f} ms\nWebSocket: {ws_latency:.0f} ms"
                 )
             else:
                 message = await ctx.reply("Pong!")
-                api_latency = (time.monotonic() - start) * 1000
+                api_latency = (time.perf_counter() - start) * 1000
+                ws_latency = self.bot.latency * 1000
                 await message.edit(
-                    content=f"Pong! API latency: {api_latency:.0f} ms\nWebSocket latency: {self.bot.latency * 1000:.0f} ms"
+                    content=f"Pong!\nAPI: {api_latency:.0f} ms\nWebSocket: {ws_latency:.0f} ms"
                 )
         except Exception:
             log.exception("Failed to execute ping command")
-            if ctx.interaction:
-                await ctx.followup.send("エラーが発生しました。", ephemeral=True)
-            else:
-                await ctx.reply("エラーが発生しました。")
+            try:
+                if ctx.interaction:
+                    await ctx.interaction.followup.send("エラーが発生しました。", ephemeral=True)
+                else:
+                    await ctx.reply("エラーが発生しました。")
+            except Exception:
+                pass
 
 
 async def setup(bot: commands.Bot) -> None:
