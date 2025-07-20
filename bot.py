@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
+from datetime import datetime
 
 import discord
 from discord.ext import commands
@@ -24,7 +25,9 @@ class CappuccinoBot(commands.Bot):
     def __init__(self, prefix: str) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
+        intents.members = True
         super().__init__(command_prefix=prefix, intents=intents)
+        self.launch_time = datetime.utcnow()
 
     async def setup_hook(self) -> None:  # type: ignore[override]
         successes, failures = await self.load_all_extensions()
