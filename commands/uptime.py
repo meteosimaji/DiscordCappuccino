@@ -59,14 +59,12 @@ class Uptime(commands.Cog):
                 timestamp=now
             )
 
-            # Uptime (メイン)
             embed.add_field(
                 name="🟢 Uptime",
                 value=f"{human}\n`{days}d {hours}h {minutes}m {seconds}s`",
                 inline=True
             )
 
-            # 起動時刻 (絶対 + 相対)
             ts = int(launch_time.timestamp())
             embed.add_field(
                 name="🗓 Started",
@@ -74,7 +72,6 @@ class Uptime(commands.Cog):
                 inline=True
             )
 
-            # 1日内の経過率 (進捗バー)
             embed.add_field(
                 name="🌅 Day Progress",
                 value=f"`{bar}` {pct:4.1f}%",
