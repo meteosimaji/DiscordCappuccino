@@ -1,6 +1,6 @@
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 import discord
 from discord.ext import commands
@@ -29,10 +29,12 @@ class Ping(commands.Cog):
                 api_latency = (time.perf_counter() - start) * 1000
             ws_latency = self.bot.latency * 1000
 
+            now_utc = datetime.now(timezone.utc)
             embed = discord.Embed(
                 title="\U0001F3D3 Cappuccino Ping",
                 description="Here's how fast I can respond!",
                 color=0xFFC0CB,
+                timestamp=now_utc,
             )
             embed.add_field(
                 name="\U0001F4BB API Latency", value=f"{api_latency:.0f} ms", inline=True
@@ -40,9 +42,7 @@ class Ping(commands.Cog):
             embed.add_field(
                 name="\U0001F4E1 WebSocket", value=f"{ws_latency:.0f} ms", inline=True
             )
-            now = datetime.now(tz=self.bot.timezone)
-            now_str = now.strftime("%Y/%m/%d %H:%M")
-            embed.set_footer(text=f"Brewed with love \u2615\ufe0f\u2728 \u30fb {now_str}")
+            embed.set_footer(text="Brewed with love \u2615\ufe0f\u2728")
 
             if ctx.interaction:
                 await ctx.interaction.followup.send(embed=embed)

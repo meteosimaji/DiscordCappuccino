@@ -21,12 +21,10 @@ DISCORD_BOT_TOKEN=YOUR_TOKEN_HERE
 BOT_PREFIX=c!
 SUPPORT_SERVER_URL=https://example.com/support
 BOT_INVITE_URL=https://example.com/invite
-TIMEZONE=UTC
 ...追加予定
 ```
 
-`TIMEZONE` は `uptime` コマンドなどで使用する基準となるタイムゾーンを指定します。
-起動後に `/setup` コマンドを使うことでボット実行中にタイムゾーンを変更できます。
+ボットのタイムゾーンは起動後に `/setup` コマンドを使って変更できます。
 
 `.env.example` を `.env` にコピーしてトークンや各種 URL を編集してください。
 

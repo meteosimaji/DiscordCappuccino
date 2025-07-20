@@ -28,12 +28,7 @@ class CappuccinoBot(commands.Bot):
         intents.message_content = True
         intents.members = True
         super().__init__(command_prefix=prefix, intents=intents)
-        tz_name = os.getenv("TIMEZONE", "UTC")
-        try:
-            self.timezone = ZoneInfo(tz_name)
-        except Exception:
-            log.warning("Invalid TIMEZONE %s, falling back to UTC", tz_name)
-            self.timezone = ZoneInfo("UTC")
+        self.timezone = ZoneInfo("UTC")
         self.launch_time = datetime.now(timezone.utc)
 
     async def setup_hook(self) -> None:  # type: ignore[override]
