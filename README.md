@@ -48,3 +48,4 @@ async def setup(bot: commands.Bot) -> None:
 ## FAQ
 
 将来的に prefix を使用しない運用も可能なように、スラッシュコマンドを主体としています。`BOT_PREFIX` を空にするとプレフィックスコマンドを無効化できます。
+プレフィックスコマンドが反応しない場合は Developer Portal で Message Content Intent を有効化してください。
