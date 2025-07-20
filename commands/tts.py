@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 import discord
 from discord.ext import commands
+from discord import app_commands
 from typing import Dict, List, Tuple
 
 import os
@@ -86,7 +87,7 @@ class TTS(commands.Cog):
         await ctx.send("切断しました")
 
     @commands.hybrid_command(name="setvoice", description="Set speaker and speed")
-    @commands.app_commands.describe(speaker="VOICEVOX speaker id", speed="Speed scale 0.5-2.0")
+    @app_commands.describe(speaker="VOICEVOX speaker id", speed="Speed scale 0.5-2.0")
     async def setvoice(self, ctx: commands.Context, speaker: int, speed: float = 1.0) -> None:
         state = self.get_state(ctx.guild.id)
         state.speaker = speaker

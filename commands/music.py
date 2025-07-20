@@ -117,7 +117,14 @@ class Music(commands.Cog):
         del state.queue[index-1]
         await ctx.send(f"Removed: {removed[0]}")
 
-    @commands.hybrid_command(name="keep", description="Keep only specified tracks")
+    # HybirdCommand cannot handle variable positional arguments when registering
+    # as an application command. Disable the app command version so that the
+    # prefix command can still accept multiple indices.
+    @commands.hybrid_command(
+        name="keep",
+        description="Keep only specified tracks",
+        with_app_command=False,
+    )
     async def keep(self, ctx: commands.Context, *indices: int) -> None:
         state = self.states.get(ctx.guild.id)
         if not state or not indices:
