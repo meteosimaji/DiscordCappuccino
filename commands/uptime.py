@@ -37,8 +37,8 @@ class Uptime(commands.Cog):
             launch_time: datetime = getattr(self.bot, "launch_time", datetime.now(timezone.utc))
             if launch_time.tzinfo is None:
                 launch_time = launch_time.replace(tzinfo=timezone.utc)
-            now = datetime.now(timezone.utc)
-            delta = now - launch_time
+            now_utc = datetime.now(timezone.utc)
+            delta = now_utc - launch_time
             total_seconds = int(delta.total_seconds())
 
             human = humanize_delta(total_seconds)
@@ -49,7 +49,7 @@ class Uptime(commands.Cog):
             minutes = rem // 60
             seconds = rem % 60
 
-            local_now = now.astimezone(self.bot.timezone)
+            local_now = now_utc.astimezone(self.bot.timezone)
             midnight = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
             seconds_today = (local_now - midnight).total_seconds()
             bar, pct = day_progress_bar(seconds_today)
@@ -58,7 +58,7 @@ class Uptime(commands.Cog):
                 title="\U0001F464 Cappuccino \u2615 Uptime",
                 description="Here's how long I've been awake!",
                 color=0x42A5F5,
-                timestamp=now
+                timestamp=now_utc
             )
 
             embed.add_field(
@@ -80,9 +80,7 @@ class Uptime(commands.Cog):
                 inline=False
             )
 
-            now_local = now.astimezone(self.bot.timezone)
-            now_str = now_local.strftime("%Y/%m/%d %H:%M")
-            embed.set_footer(text=f"Brewed with love ☕✨ ・ {now_str}")
+            embed.set_footer(text="Brewed with love ☕✨")
 
             await self._reply(ctx, embed=embed)
         except Exception:
