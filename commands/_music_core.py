@@ -17,6 +17,23 @@ FFMPEG_OPTS = {
 }
 
 
+async def fade_volume(
+    source: discord.PCMVolumeTransformer,
+    start: float,
+    end: float,
+    duration: float = 1.0,
+) -> None:
+    """Gradually change volume from start to end."""
+    steps = 10
+    step = (end - start) / steps
+    delay = duration / steps
+    volume = start
+    for _ in range(steps):
+        volume += step
+        source.volume = max(volume, 0)
+        await asyncio.sleep(delay)
+
+
 class MusicState:
     def __init__(self):
         self.queue: Deque[Tuple[str, str]] = collections.deque()
@@ -26,13 +43,13 @@ class MusicState:
         self.next_event = asyncio.Event()
         self.position: int = 0
 
-    def reduce_volume(self) -> None:
+    async def reduce_volume(self) -> None:
         if self.source:
-            self.source.volume = 0.3
+            await fade_volume(self.source, self.source.volume, 0.3)
 
-    def restore_volume(self) -> None:
+    async def restore_volume(self) -> None:
         if self.source:
-            self.source.volume = self.volume
+            await fade_volume(self.source, self.source.volume, self.volume)
 
 
 class MusicController:
@@ -81,15 +98,15 @@ class MusicController:
         if vc and vc.is_connected():
             await vc.disconnect()
 
-    def reduce_volume(self, guild_id: int) -> None:
+    async def reduce_volume(self, guild_id: int) -> None:
         state = self.states.get(guild_id)
         if state:
-            state.reduce_volume()
+            await state.reduce_volume()
 
-    def restore_volume(self, guild_id: int) -> None:
+    async def restore_volume(self, guild_id: int) -> None:
         state = self.states.get(guild_id)
         if state:
-            state.restore_volume()
+            await state.restore_volume()
 
 
 music_controller = MusicController()

@@ -1,9 +1,12 @@
 import asyncio
 import aiohttp
 import os
+import io
+from typing import Dict
+
 import discord
 from discord.ext import commands
-from typing import Dict
+from gtts import gTTS
 
 from ._music_core import music_controller
 
@@ -25,6 +28,39 @@ class TTSController:
         self.states: Dict[int, TTSState] = {}
         self.loop_task: Dict[int, asyncio.Task] = {}
 
+    async def fetch_audio(
+        self, sess: aiohttp.ClientSession, text: str, speaker: int, speed: float
+    ) -> bytes | None:
+        """Fetch audio data from VOICEVOX or fall back to gTTS."""
+        try:
+            query_url = f"{VOICEVOX_URL}/audio_query"
+            synthesis_url = f"{VOICEVOX_URL}/synthesis"
+            params = {"text": text, "speaker": speaker}
+            async with sess.post(query_url, params=params) as r:
+                query = await r.json()
+            query["speedScale"] = speed
+            async with sess.post(
+                synthesis_url, params={"speaker": speaker}, json=query
+            ) as r:
+                return await r.read()
+        except Exception:
+            pass
+
+        try:
+            loop = asyncio.get_running_loop()
+            tts = gTTS(text=text, lang="ja", slow=False)
+            buf = io.BytesIO()
+            await loop.run_in_executor(None, tts.write_to_fp, buf)
+            return buf.getvalue()
+        except Exception:
+            return None
+
+    async def generate_audio(
+        self, text: str, speaker: int, speed: float
+    ) -> bytes | None:
+        async with aiohttp.ClientSession() as sess:
+            return await self.fetch_audio(sess, text, speaker, speed)
+
     def set_bot(self, bot: commands.Bot) -> None:
         if self.bot is None:
             self.bot = bot
@@ -38,24 +74,17 @@ class TTSController:
             while voice.is_connected():
                 text = await state.queue.get()
                 try:
-                    query_url = f"{VOICEVOX_URL}/audio_query"
-                    synthesis_url = f"{VOICEVOX_URL}/synthesis"
-                    params = {"text": text, "speaker": state.speaker}
-                    async with sess.post(query_url, params=params) as r:
-                        query = await r.json()
-                    query["speedScale"] = state.speed
-                    async with sess.post(
-                        synthesis_url, params={"speaker": state.speaker}, json=query
-                    ) as r:
-                        audio = await r.read()
+                    audio = await self.fetch_audio(sess, text, state.speaker, state.speed)
+                    if not audio:
+                        continue
                     source = discord.PCMVolumeTransformer(
                         discord.FFmpegPCMAudio(audio, pipe=True)
                     )
-                    music_controller.reduce_volume(guild_id)
+                    await music_controller.reduce_volume(guild_id)
                     voice.play(source)
                     while voice.is_playing():
                         await asyncio.sleep(0.1)
-                    music_controller.restore_volume(guild_id)
+                    await music_controller.restore_volume(guild_id)
                 except Exception:
                     pass
 
@@ -66,6 +95,10 @@ class TTSController:
         if not state or state.channel_id != message.channel.id:
             return
         await state.queue.put(message.clean_content)
+
+    async def enqueue_text(self, guild_id: int, text: str) -> None:
+        state = self.get_state(guild_id)
+        await state.queue.put(text)
 
     async def start_loop(self, guild_id: int, vc: discord.VoiceClient) -> None:
         if guild_id not in self.loop_task or self.loop_task[guild_id].done():
