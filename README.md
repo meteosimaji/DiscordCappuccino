@@ -19,10 +19,12 @@ DiscordCappuccino/
 ```
 DISCORD_BOT_TOKEN=YOUR_TOKEN_HERE
 BOT_PREFIX=c!
+SUPPORT_SERVER_URL=https://example.com/support
+BOT_INVITE_URL=https://example.com/invite
 ...追加予定
 ```
 
-`.env.example` を `.env` にコピーしてトークンなどを編集してください。
+`.env.example` を `.env` にコピーしてトークンや各種URLを編集してください。
 
 ## 起動手順
 
