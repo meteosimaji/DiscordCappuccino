@@ -1,6 +1,6 @@
 # DiscordCappuccino
 
-簡易な Discord Bot のサンプルです。`commands/` 以下の拡張を読み込み、スラッシュコマンドを中心に動作します。
+簡易な Discord Bot のサンプルです。`commands/` 以下の拡張を読み込み、スラッシュコマンドを中心に動作します。VOICEVOX を利用した読み上げ機能と、YouTube などの音源を再生する簡易音楽プレイヤーを搭載しています。
 
 ## フォルダ構成例
 
@@ -21,6 +21,7 @@ DISCORD_BOT_TOKEN=YOUR_TOKEN_HERE
 BOT_PREFIX=c!
 SUPPORT_SERVER_URL=https://example.com/support
 BOT_INVITE_URL=https://example.com/invite
+VOICEVOX_URL=http://localhost:50021
 ...追加予定
 ```
 
@@ -34,7 +35,8 @@ BOT_INVITE_URL=https://example.com/invite
 2. 仮想環境を作成してアクティベートします。
 3. `pip install -r requirements.txt` で依存をインストールします。
 4. `.env.example` を `.env` にコピーし、`DISCORD_BOT_TOKEN` を設定します。
-5. `python bot.py` を実行して起動します。
+5. VOICEVOX エンジンを起動し、`VOICEVOX_URL` を設定します。
+6. `python bot.py` を実行して起動します。
 
 ## コマンド追加ガイド
 
@@ -49,6 +51,11 @@ class Example(commands.Cog):
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Example(bot))
 ```
+
+## 主な機能
+
+- VOICEVOX によるテキスト読み上げ (`/join`, `/setvoice`, `/disconnect`, `/skip`)
+- YouTube 等の音源再生 (`/play`, `/queue`, `/remove`, `/keep`, `/seek`, `/rewind`, `/forward`, `/stop`)
 
 ## FAQ
 
