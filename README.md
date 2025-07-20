@@ -24,7 +24,10 @@ BOT_INVITE_URL=https://example.com/invite
 ...追加予定
 ```
 
-ボットのタイムゾーンは起動後に `/setup` コマンドを使って変更できます。
+ボットのタイムゾーンは起動後に `/setup` コマンドで設定します。
+`Asia/Tokyo` などの主要なタイムゾーン名か、`/setup timezone:+9` のように
+UTC からのオフセットを入力してください。夏時間を手動で加算したい場合は
+`/setup timezone:+10 summertime:+1` のように `summertime` 引数を利用します。
 
 `.env.example` を `.env` にコピーしてトークンや各種 URL を編集してください。
 
