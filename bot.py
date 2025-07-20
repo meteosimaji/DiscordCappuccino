@@ -5,7 +5,8 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import discord
 from discord.ext import commands
@@ -27,7 +28,13 @@ class CappuccinoBot(commands.Bot):
         intents.message_content = True
         intents.members = True
         super().__init__(command_prefix=prefix, intents=intents)
-        self.launch_time = datetime.utcnow()
+        tz_name = os.getenv("TIMEZONE", "UTC")
+        try:
+            self.timezone = ZoneInfo(tz_name)
+        except Exception:
+            log.warning("Invalid TIMEZONE %s, falling back to UTC", tz_name)
+            self.timezone = ZoneInfo("UTC")
+        self.launch_time = datetime.now(timezone.utc)
 
     async def setup_hook(self) -> None:  # type: ignore[override]
         successes, failures = await self.load_all_extensions()

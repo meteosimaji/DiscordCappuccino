@@ -1,5 +1,6 @@
 import logging
 import time
+from datetime import datetime
 
 import discord
 from discord.ext import commands
@@ -39,7 +40,9 @@ class Ping(commands.Cog):
             embed.add_field(
                 name="\U0001F4E1 WebSocket", value=f"{ws_latency:.0f} ms", inline=True
             )
-            embed.set_footer(text="Brewed with love \u2615\ufe0f\u2728")
+            now = datetime.now(tz=self.bot.timezone)
+            now_str = now.strftime("%Y/%m/%d %H:%M")
+            embed.set_footer(text=f"Brewed with love \u2615\ufe0f\u2728 \u30fb {now_str}")
 
             if ctx.interaction:
                 await ctx.interaction.followup.send(embed=embed)
