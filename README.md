@@ -25,9 +25,7 @@ BOT_INVITE_URL=https://example.com/invite
 ```
 
 ボットのタイムゾーンは起動後に `/setup` コマンドで指定します。
-基本は `/setup timezone:+9` のように UTC からのオフセットを入力します。
-夏時間を加味したい場合は `/setup timezone:+10 summertime:+1` のように
-`summertime` 引数で追加のオフセットを指定してください。
+オフセットは -12～+14 の選択肢から選べます。指定しない場合は UTC となります。
 
 `.env.example` を `.env` にコピーしてトークンや各種 URL を編集してください。
 
